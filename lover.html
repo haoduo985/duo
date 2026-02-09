@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专属测试 | 寻找有缘人</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入qrcodejs库用于生成二维码 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(156, 39, 176, 0.15);
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            background: linear-gradient(to right, #d81b60, #8e24aa);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-content {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header p {
+            font-size: 1.15rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+        
+        .hearts-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .heart-bg {
+            position: absolute;
+            font-size: 1.5rem;
+            color: white;
+            opacity: 0.7;
+        }
+        
+        /* 页面通用样式 */
+        .page {
+            display: none;
+            padding: 40px 30px;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 首页样式 */
+        .intro-container {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            background: linear-gradient(to right, #d81b60, #8e24aa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+            box-shadow: 0 8px 20px rgba(216, 27, 96, 0.3);
+        }
+        
+        .intro-title {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .intro-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: #555;
+            text-align: left;
+            padding: 0 20px;
+        }
+        
+        .intro-text p {
+            margin-bottom: 15px;
+        }
+        
+        .intro-features {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            margin: 10px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #d81b60;
+        }
+        
+        .feature i {
+            color: #d81b60;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .feature h3 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .feature p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .intro-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .intro-btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+        
+        .btn-continue {
+            background: linear-gradient(to right, #4caf50, #2e7d32);
+            color: white;
+        }
+        
+        .btn-continue:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-talent {
+            background: linear-gradient(to right, #2196f3, #1976d2);
+            color: white;
+        }
+        
+        .btn-talent:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
+        }
+        
+        /* 测试页面样式 */
+        .test-header {
+            background: linear-gradient(to right, #d81b60, #8e24aa);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .test-header h2 {
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .progress-container {
+            padding: 20px 0 10px;
+            background-color: transparent;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #d81b60, #8e24aa);
+            width: 0%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .question-container {
+            margin-top: 20px;
+        }
+        
+        .question-card {
+            display: none;
+        }
+        
+        .question-card.active {
+            display: block;
+        }
+        
+        .question-number {
+            font-size: 1rem;
+            color: #d81b60;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 18px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            border-color: #8e24aa;
+            background-color: #f8f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(142, 36, 170, 0.1);
+        }
+        
+        .option.selected {
+            border-color: #d81b60;
+            background-color: #fff0f3;
+            box-shadow: 0 4px 12px rgba(216, 27, 96, 0.15);
+        }
+        
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .selected .option-letter {
+            background: linear-gradient(to right, #d81b60, #8e24aa);
+            color: white;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px 0 10px;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-prev {
+            background-color: #f8f9fa;
+            color: #666;
+        }
+        
+        .btn-prev:hover {
+            background-color: #e9ecef;
+            color: #333;
+        }
+        
+        .btn-next {
+            background: linear-gradient(to right, #d81b60, #8e24aa);
+            color: white;
+            min-width: 150px;
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(216, 27, 96, 0.3);
+        }
+        
+        .btn-submit {
+            background: linear-gradient(to right, #4caf50, #2e7d32);
+            color: white;
+            min-width: 150px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* 结果页面样式 */
+        .result-content {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .result-title {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .result-score {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: #d81b60;
+            margin: 20px 0;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-message {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .fail-message {
+            background-color: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border-left: 5px solid #d81b60;
+            text-align: center;
+        }
+        
+        .fail-message h3 {
+            color: #d81b60;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        
+        .fail-message p {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        /* 个人信息表单样式 */
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+            border-left: 5px solid #4caf50;
+        }
+        
+        .form-title {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus {
+            border-color: #8e24aa;
+            outline: none;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        .form-textarea:focus {
+            border-color: #8e24aa;
+            outline: none;
+        }
+        
+        .form-note {
+            font-size: 0.95rem;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .form-disclaimer {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .form-disclaimer i {
+            margin-right: 8px;
+            color: #ffc107;
+        }
+        
+        .btn-submit-form {
+            background: linear-gradient(to right, #4caf50, #2e7d32);
+            color: white;
+            margin: 20px auto 0;
+            padding: 15px 40px;
+            display: block;
+        }
+        
+        .btn-submit-form:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .form-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #155724;
+            text-align: center;
+        }
+        
+        .form-success i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #28a745;
+        }
+        
+        /* 分享二维码样式 */
+        .qrcode-container {
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #f3e5f5 100%);
+            border-radius: 15px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e1bee7;
+        }
+        
+        .qrcode {
+            width: 220px;
+            height: 220px;
+            background-color: white;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #eee;
+            padding: 10px;
+        }
+        
+        .qrcode-info {
+            margin-top: 15px;
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        
+        .qrcode-info i {
+            color: #8e24aa;
+            margin-right: 5px;
+        }
+        
+        .footer {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            background-color: #f8f9fa;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .intro-title {
+                font-size: 1.8rem;
+            }
+            
+            .intro-text {
+                font-size: 1.1rem;
+                padding: 0 10px;
+            }
+            
+            .intro-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .intro-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .option {
+                padding: 15px;
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .result-score {
+                font-size: 3.5rem;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .qrcode {
+                width: 200px;
+                height: 200px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+            }
+            
+            .page {
+                padding: 25px 15px;
+            }
+            
+            .buttons-container {
+                padding: 20px 0 10px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .btn-prev {
+                order: 2;
+            }
+            
+            .btn-next, .btn-submit {
+                order: 1;
+            }
+            
+            .result-score {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 首页：个人介绍 -->
+        <div class="page active" id="home-page">
+            <div class="header">
+                <div class="hearts-background" id="hearts-bg"></div>
+                <div class="header-content">
+                    <h1><i class="fas fa-heart"></i> 专属测试 | 寻找有缘人</h1>
+                    <p>下面是20道选择题测试，为了提升匹配效率，也为了脱离平台限制而开发，希望早日找到有趣的你</p>
+                </div>
+            </div>
+            
+            <div class="intro-container">
+                <div class="profile-image">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                
+                <h2 class="intro-title">你好，这是一个契合度测试</h2>
+                
+                <div class="intro-text">
+                    <p>如果你扫描QR码进入这个网页，说明你会用电子设备，真棒！</p>
+                    <p>下面介绍一下自己。</p>
+                    <p>学习经历：我在呼市度过了大学以下的学习生活，三中，二中，简单的学习经历。大学在厦门，美丽的海滨城市，研究生在沈阳，理工科。</p>
+                    <p>感情经历：有一段感情经历，未来规划不同，和平分手。</p>
+                    <p>爱好：除了网球之外的各种球类运动都会，滑冰滑雪游泳都有所涉猎，中级场乱杀，高级场装唐。</p>
+                    <p>其他：有时候宅，有时候不想回家，取决于当时的身心状态，以及和谁，做什么。</p>
+                    <p>旅行：非常喜欢摄影和旅游，城市和自然风光，会坚定的选择后者，关注了很多房车博主，希望有朝一日能房车环游世界。</p>
+                    <p>工作状态：电力企业工作，有时加班，有时出差，周末双休。</p>
+                    <p>宠物：想养一只狗，对猫不是很感冒</p>
+                    <p>能力：比较稳重，点子王，学习能力强。</p>
+                    <p>我相信真诚是建立关系的基础，而理解与包容则是长久相处的关键。</p>
+                    <p>比较介意的点：</p>
+                    <p>1.一本以下的学历：也不是找工作，所以不是学历歧视，只是觉得人生经历重合的点比较少，话题会少。</p>
+                    <p>2.两段以上感情经历：假设，第一段是青涩的初恋，让小男孩骗了，第二段大学时光，未来规划不同，第三个还没找到合适的人，你这体质哈哈哈哈，不行找大师看看。</p>
+                    <p>3.年龄在95-01之间，身高高于160</p>
+                    <p>4.抽烟，有纹身，去夜店，有弟弟，单亲家庭，丁克不考虑。</p>
+                    <p>宇宙免责声明：以上要求纯属个人喜好，没有任何歧视，如有冒犯，你也不能把我咋地哈哈哈。</p>
+                </div>
+               
+                <div class="intro-features">
+                    <div class="feature">
+                        <i class="fas fa-heart"></i>
+                        <h3>真诚与沟通</h3>
+                        <p>相信真诚和沟通是建立一切关系的基础</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-globe-asia"></i>
+                        <h3>无限进步</h3>
+                        <p>我期待遇到一个同样热爱生活、积极向上的人，我们可以一起探索世界的美好，相互支持，共同成长。</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-handshake"></i>
+                        <h3>无限可能</h3>
+                        <p>希望遇到你以后可以让两个人都不断进步，有无限可能，不太喜欢一眼望到头的稳定了，有种淡淡的死感</p>
+                    </div>
+                </div>
+                
+                <!-- 首页分享二维码 -->
+                <div class="qrcode-container">
+                    <h3>分享此测试</h3>
+                    <p>扫描下方二维码，将测试分享给朋友</p>
+                    <div class="qrcode" id="home-qrcode"></div>
+                    <div class="qrcode-info">
+                        <p><i class="fas fa-info-circle"></i> 使用微信扫描二维码分享此测试</p>
+                    </div>
+                </div>
+                
+                <div class="intro-buttons">
+                    <button class="intro-btn btn-continue" id="continue-btn">
+                        <i class="fas fa-arrow-right"></i> 继续了解
+                    </button>
+                    <button class="intro-btn btn-talent" id="talent-btn">
+                        <i class="fas fa-users"></i> 进入人才库
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 测试页面 -->
+        <div class="page" id="test-page">
+            <!-- 测试页面简化的header -->
+            <div class="test-header">
+                <h2>测试题目</h2>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="progress-text">
+                    <span>答题进度</span>
+                    <span id="progress-percentage">0%</span>
+                </div>
+            </div>
+            
+            <div class="question-container" id="question-container">
+                <!-- 问题卡片将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="buttons-container">
+                <button class="btn btn-prev" id="prev-btn">
+                    <i class="fas fa-arrow-left"></i> 上一题
+                </button>
+                <button class="btn btn-next" id="next-btn">
+                    下一题 <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn btn-submit" id="submit-btn" style="display: none;">
+                    <i class="fas fa-paper-plane"></i> 查看得分
+                </button>
+            </div>
+        </div>
+        
+        <!-- 结果页面 -->
+        <div class="page" id="result-page">
+            <div class="result-content" id="result-content">
+                <!-- 结果内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>缘分测试系统 | 本测试仅供娱乐参考，祝愿每个人都能找到属于自己的幸福</p>
+        </div>
+    </div>
+
+    <script>
+        // 创建背景爱心
+        function createBackgroundHearts() {
+            const heartsBg = document.getElementById('hearts-bg');
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-bg';
+                heart.innerHTML = '<i class="fas fa-heart"></i>';
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.top = `${Math.random() * 100}%`;
+                heart.style.fontSize = `${Math.random() * 1 + 1}rem`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                heartsBg.appendChild(heart);
+            }
+        }
+        
+        // 固定的20个问题，每个问题有5个选项，每个选项有自定义分值
+        function getQuestions() {
+            return [
+                // 第1个问题
+                {
+                    question: "你如何看待个人空间在恋爱关系中的重要性？",
+                    options: [
+                        { text: "非常重要，彼此都需要独立空间", score: 5 },
+                        { text: "比较重要，但更希望多相处", score: 4 },
+                        { text: "不太重要，喜欢时刻在一起", score: 2 },
+                        { text: "视情况而定", score: 3 },
+                        { text: "完全不在意，可以完全融合", score: 1 }
+                    ]
+                },
+                // 第2个问题
+                {
+                    question: "你认为理想的相处时间频率是？",
+                    options: [
+                        { text: "每天见面", score: 3 },
+                        { text: "每周3-4次", score: 5 },
+                        { text: "每周1-2次", score: 4 },
+                        { text: "每两周1次", score: 2 },
+                        { text: "每月1-2次", score: 1 }
+                    ]
+                },
+                // 第3个问题
+                {
+                    question: "你更看重伴侣的哪些特质？",
+                    options: [
+                        { text: "真诚和责任感", score: 5 },
+                        { text: "幽默感和乐观", score: 4 },
+                        { text: "聪明和有才华", score: 3 },
+                        { text: "体贴和温柔", score: 4 },
+                        { text: "外貌和气质", score: 2 }
+                    ]
+                },
+                // 第4个问题
+                {
+                    question: "关于未来规划，你认为最重要的是？",
+                    options: [
+                        { text: "有共同的生活目标", score: 5 },
+                        { text: "职业发展相互支持", score: 4 },
+                        { text: "经济状况稳定", score: 3 },
+                        { text: "家庭观念一致", score: 4 },
+                        { text: "享受当下，不规划太远", score: 2 }
+                    ]
+                },
+                // 第5个问题
+                {
+                    question: "你如何表达爱意？",
+                    options: [
+                        { text: "直接说出'我爱你'", score: 4 },
+                        { text: "通过行动和照顾", score: 5 },
+                        { text: "赠送礼物", score: 3 },
+                        { text: "花时间陪伴", score: 4 },
+                        { text: "很少表达，内心明白就好", score: 2 }
+                    ]
+                },
+                // 第6个问题
+                {
+                    question: "你如何看待恋爱中的经济问题？",
+                    options: [
+                        { text: "AA制或轮流支付", score: 3 },
+                        { text: "谁方便谁支付", score: 4 },
+                        { text: "根据收入比例分担", score: 4 },
+                        { text: "一人负责主要开销", score: 2 },
+                        { text: "完全由一方承担", score: 1 }
+                    ]
+                },
+                // 第7个问题
+                {
+                    question: "你希望和伴侣有怎样的兴趣爱好？",
+                    options: [
+                        { text: "大部分相同", score: 4 },
+                        { text: "部分相同，部分互补", score: 5 },
+                        { text: "完全不同但彼此尊重", score: 3 },
+                        { text: "可以培养共同兴趣", score: 4 },
+                        { text: "完全独立，互不干涉", score: 2 }
+                    ]
+                },
+                // 第8个问题
+                {
+                    question: "你认为恋爱中最重要的是什么？",
+                    options: [
+                        { text: "信任和忠诚", score: 5 },
+                        { text: "理解和包容", score: 4 },
+                        { text: "激情和浪漫", score: 3 },
+                        { text: "成长和进步", score: 4 },
+                        { text: "物质条件", score: 2 }
+                    ]
+                },
+                // 第9个问题
+                {
+                    question: "你喜欢的沟通方式是？",
+                    options: [
+                        { text: "面对面交谈", score: 5 },
+                        { text: "电话或视频通话", score: 4 },
+                        { text: "文字消息", score: 3 },
+                        { text: "社交平台互动", score: 2 },
+                        { text: "写信或便条", score: 3 }
+                    ]
+                },
+                // 第10个问题
+                {
+                    question: "你如何看待伴侣的社交圈？",
+                    options: [
+                        { text: "希望融入对方的社交圈", score: 4 },
+                        { text: "保持各自的社交圈", score: 3 },
+                        { text: "有共同的朋友圈", score: 4 },
+                        { text: "不过多干涉对方的社交", score: 5 },
+                        { text: "希望对方减少社交", score: 1 }
+                    ]
+                },
+                // 第11个问题
+                {
+                    question: "你希望如何度过周末？",
+                    options: [
+                        { text: "外出约会或旅行", score: 4 },
+                        { text: "在家休息放松", score: 3 },
+                        { text: "和朋友聚会", score: 3 },
+                        { text: "一起学习或工作", score: 2 },
+                        { text: "各自安排，互不打扰", score: 2 }
+                    ]
+                },
+                // 第12个问题
+                {
+                    question: "你认为浪漫是？",
+                    options: [
+                        { text: "恋爱中必不可少的部分", score: 4 },
+                        { text: "偶尔的惊喜和仪式感", score: 5 },
+                        { text: "不重要，平淡真实就好", score: 2 },
+                        { text: "看情况，不是必需品", score: 3 },
+                        { text: "完全不需要", score: 1 }
+                    ]
+                },
+                // 第13个问题
+                {
+                    question: "你希望伴侣如何支持你？",
+                    options: [
+                        { text: "情感上的理解与安慰", score: 5 },
+                        { text: "实际问题的帮助与解决", score: 4 },
+                        { text: "事业上的建议与支持", score: 3 },
+                        { text: "精神上的鼓励与陪伴", score: 4 },
+                        { text: "物质上的支持", score: 2 }
+                    ]
+                },
+                // 第14个问题
+                {
+                    question: "你对未来的家庭生活有什么期待？",
+                    options: [
+                        { text: "温馨和谐，充满爱", score: 5 },
+                        { text: "相互尊重，平等相处", score: 5 },
+                        { text: "事业家庭平衡发展", score: 4 },
+                        { text: "简单平淡，知足常乐", score: 3 },
+                        { text: "追求事业成功", score: 2 }
+                    ]
+                },
+                // 第15个问题
+                {
+                    question: "你如何看待恋爱中的承诺？",
+                    options: [
+                        { text: "非常重要，是关系的基础", score: 5 },
+                        { text: "重要，但需要时间验证", score: 4 },
+                        { text: "顺其自然，不强求", score: 2 },
+                        { text: "行动比承诺更重要", score: 4 },
+                        { text: "不需要太多承诺", score: 1 }
+                    ]
+                },
+                // 第16个问题
+                {
+                    question: "你如何处理恋爱中的分歧？",
+                    options: [
+                        { text: "理性讨论，寻求共识", score: 5 },
+                        { text: "互相妥协，各退一步", score: 4 },
+                        { text: "尊重差异，不强求一致", score: 4 },
+                        { text: "暂时搁置，以后再谈", score: 2 },
+                        { text: "必须听我的", score: 1 }
+                    ]
+                },
+                // 第17个问题
+                {
+                    question: "你认为礼物在恋爱中的作用是？",
+                    options: [
+                        { text: "表达爱意的重要方式", score: 4 },
+                        { text: "特殊日子的仪式感", score: 4 },
+                        { text: "可有可无，心意更重要", score: 3 },
+                        { text: "日常的小惊喜", score: 5 },
+                        { text: "完全不重要", score: 1 }
+                    ]
+                },
+                // 第18个问题
+                {
+                    question: "你希望恋爱关系如何发展？",
+                    options: [
+                        { text: "稳定长久，走向婚姻", score: 5 },
+                        { text: "顺其自然，享受当下", score: 3 },
+                        { text: "共同成长，相互成就", score: 5 },
+                        { text: "充满激情，不断新鲜", score: 3 },
+                        { text: "不确定，看缘分", score: 2 }
+                    ]
+                },
+                // 第19个问题
+                {
+                    question: "你如何看待旅行在恋爱中的作用？",
+                    options: [
+                        { text: "非常重要，能增进感情", score: 5 },
+                        { text: "比较重要，喜欢一起探索", score: 4 },
+                        { text: "可有可无", score: 2 },
+                        { text: "不喜欢旅行，更愿意宅", score: 1 },
+                        { text: "偶尔一次即可", score: 3 }
+                    ]
+                },
+                // 第20个问题
+                {
+                    question: "你如何看待伴侣的过去感情经历？",
+                    options: [
+                        { text: "完全不介意", score: 5 },
+                        { text: "稍微了解即可", score: 4 },
+                        { text: "比较在意，但能接受", score: 3 },
+                        { text: "非常在意，希望知道细节", score: 2 },
+                        { text: "不能接受有过去", score: 1 }
+                    ]
+                }
+            ];
+        }
+        
+        // 生成二维码
+        function generateQRCode(elementId, text) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '';
+            
+            QRCode.toCanvas(
+                text,
+                { width: 200, height: 200, margin: 1 },
+                function (error, canvas) {
+                    if (error) {
+                        console.error(error);
+                        // 如果生成失败，显示备用内容
+                        element.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <div style="font-size: 4rem; color: #d81b60; margin-bottom: 10px;">
+                                    <i class="fas fa-qrcode"></i>
+                                </div>
+                                <p style="color: #666; font-size: 0.9rem;">${text}</p>
+                            </div>
+                        `;
+                    } else {
+                        element.appendChild(canvas);
+                    }
+                }
+            );
+        }
+        
+        // 应用状态
+        const state = {
+            currentPage: 'home', // home, test, result
+            currentQuestion: 0,
+            scores: [],
+            questions: [],
+            totalScore: 0,
+            threshold: 65, // 通过阈值
+            formSubmitted: false // 标记表单是否已提交
+        };
+        
+        // DOM元素
+        const homePage = document.getElementById('home-page');
+        const testPage = document.getElementById('test-page');
+        const resultPage = document.getElementById('result-page');
+        const continueBtn = document.getElementById('continue-btn');
+        const talentBtn = document.getElementById('talent-btn');
+        const questionContainer = document.getElementById('question-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultContent = document.getElementById('result-content');
+        const progressBar = document.getElementById('progress');
+        const progressPercentage = document.getElementById('progress-percentage');
+        
+        // 初始化
+        function init() {
+            // 获取固定问题
+            state.questions = getQuestions();
+            state.scores = new Array(state.questions.length).fill(0);
+            
+            // 显示首页
+            showPage('home');
+            
+            // 初始化测试页面
+            initTestPage();
+            
+            // 生成首页分享二维码
+            generateQRCode('home-qrcode', window.location.href);
+        }
+        
+        // 显示指定页面
+        function showPage(page) {
+            // 隐藏所有页面
+            homePage.classList.remove('active');
+            testPage.classList.remove('active');
+            resultPage.classList.remove('active');
+            
+            // 显示目标页面
+            if (page === 'home') {
+                homePage.classList.add('active');
+                state.currentPage = 'home';
+            } else if (page === 'test') {
+                testPage.classList.add('active');
+                state.currentPage = 'test';
+                // 重置到第一题
+                state.currentQuestion = 0;
+                showQuestion(0);
+                updateProgress();
+            } else if (page === 'result') {
+                resultPage.classList.add('active');
+                state.currentPage = 'result';
+            }
+            
+            // 记录页面历史（用于防止浏览器后退）
+            if (window.history && window.history.pushState) {
+                window.history.pushState({ page: page }, '', '');
+            }
+        }
+        
+        // 防止浏览器后退按钮
+        window.addEventListener('popstate', function(event) {
+            // 如果当前在测试页面，允许后退到上一题
+            if (state.currentPage === 'test' && state.currentQuestion > 0) {
+                showQuestion(state.currentQuestion - 1);
+            }
+            // 其他情况不允许后退
+            else {
+                // 重新推入当前页面状态
+                if (window.history && window.history.pushState) {
+                    window.history.pushState({ page: state.currentPage }, '', '');
+                }
+            }
+        });
+        
+        // 初始化测试页面
+        function initTestPage() {
+            // 清空问题容器
+            questionContainer.innerHTML = '';
+            
+            // 创建问题卡片
+            state.questions.forEach((q, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = `question-card ${index === 0 ? 'active' : ''}`;
+                questionCard.dataset.index = index;
+                
+                const optionsHTML = q.options.map((option, optIndex) => {
+                    const letter = String.fromCharCode(65 + optIndex); // A, B, C, D, E
+                    return `
+                        <div class="option" data-score="${option.score}" data-index="${optIndex}">
+                            <div class="option-letter">${letter}</div>
+                            <div class="option-text">${option.text}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                questionCard.innerHTML = `
+                    <div class="question-number">问题 ${index + 1} / ${state.questions.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options-container">
+                        ${optionsHTML}
+                    </div>
+                `;
+                
+                questionContainer.appendChild(questionCard);
+            });
+            
+            // 为选项添加点击事件
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', handleOptionClick);
+            });
+            
+            updateButtons();
+            updateProgress();
+        }
+        
+        // 处理选项点击
+        function handleOptionClick(e) {
+            const option = e.currentTarget;
+            const questionCard = option.closest('.question-card');
+            const questionIndex = parseInt(questionCard.dataset.index);
+            
+            // 移除同一问题中其他选项的选中状态
+            questionCard.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // 选中当前选项
+            option.classList.add('selected');
+            
+            // 保存分数
+            const score = parseInt(option.dataset.score);
+            state.scores[questionIndex] = score;
+            
+            updateButtons();
+            updateProgress();
+        }
+        
+        // 更新按钮状态
+        function updateButtons() {
+            // 上一题按钮 - 只在测试页面且不是第一题时显示
+            if (state.currentQuestion === 0) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+            }
+            
+            // 下一题/提交按钮
+            if (state.currentQuestion === state.questions.length - 1) {
+                nextBtn.style.display = 'none';
+                
+                // 检查当前问题是否已回答
+                const currentQuestionAnswered = state.scores[state.currentQuestion] > 0;
+                submitBtn.style.display = currentQuestionAnswered ? 'flex' : 'none';
+            } else {
+                nextBtn.style.display = 'flex';
+                submitBtn.style.display = 'none';
+            }
+            
+            // 检查当前问题是否已回答
+            const currentQuestionAnswered = state.scores[state.currentQuestion] > 0;
+            if (state.currentQuestion < state.questions.length - 1) {
+                nextBtn.disabled = !currentQuestionAnswered;
+            }
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            // 计算已回答的问题数量
+            const answeredCount = state.scores.filter(score => score > 0).length;
+            const progress = (answeredCount / state.questions.length) * 100;
+            
+            progressBar.style.width = `${progress}%`;
+            progressPercentage.textContent = `${Math.round(progress)}%`;
+        }
+        
+        // 显示指定问题
+        function showQuestion(index) {
+            // 隐藏所有问题
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // 显示指定问题
+            document.querySelector(`.question-card[data-index="${index}"]`).classList.add('active');
+            
+            // 更新当前问题索引
+            state.currentQuestion = index;
+            
+            updateButtons();
+        }
+        
+        // 计算总分
+        function calculateTotalScore() {
+            return state.scores.reduce((total, score) => total + score, 0);
+        }
+        
+        // 显示测试结果
+        function showTestResult() {
+            state.totalScore = calculateTotalScore();
+            const percentage = state.totalScore; // 满分100分
+            
+            let resultHTML = '';
+            
+            if (percentage >= state.threshold && !state.formSubmitted) {
+                // 通过测试，显示个人信息表单
+                resultHTML = `
+                    <h2 class="result-title">🎉 恭喜！你的得分是</h2>
+                    <div class="result-score">${percentage}分</div>
+                    <p class="result-message">
+                        你的得分达到了${percentage}分（满分100分），超过了${state.threshold}分的阈值！
+                        请填写以下个人信息，我们将尽快与您联系。
+                    </p>
+                    
+                    <div class="form-container">
+                        <h3 class="form-title">个人信息登记</h3>
+                        
+                        <div class="form-disclaimer">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>温馨提示：</strong> 并不是所有信息均需填写，本人纯属为了提高脱单效率，如有冒犯请多包涵。
+                        </div>
+                        
+                        <form id="user-info-form">
+                            <div class="form-group">
+                                <label class="form-label" for="birth-year">出生年份</label>
+                                <input type="number" id="birth-year" class="form-input" placeholder="例如：1990" min="1950" max="2010">
+                                <div class="form-note">请填写4位数字的出生年份</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="height">身高 (cm)</label>
+                                <input type="number" id="height" class="form-input" placeholder="例如：175" min="140" max="220">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="weight">体重 (kg)</label>
+                                <input type="number" id="weight" class="form-input" placeholder="例如：65" min="35" max="150">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="job">工作/职业</label>
+                                <input type="text" id="job" class="form-input" placeholder="例如：设计师、教师、工程师等">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="hobbies">爱好/兴趣</label>
+                                <textarea id="hobbies" class="form-textarea" placeholder="例如：阅读、旅行、摄影、音乐、运动等"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="wechat">微信号</label>
+                                <input type="text" id="wechat" class="form-input" placeholder="请输入您的微信号">
+                                <div class="form-note">请确保微信号正确，我们将通过微信与您联系</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="introduction">其他介绍/想说的话</label>
+                                <textarea id="introduction" class="form-textarea" placeholder="可以简单介绍一下自己，或者对未来的期待等"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-submit-form">
+                                <i class="fas fa-paper-plane"></i> 提交信息
+                            </button>
+                        </form>
+                    </div>
+                `;
+            } else if (percentage >= state.threshold && state.formSubmitted) {
+                // 表单已提交
+                resultHTML = `
+                    <h2 class="result-title">🎉 恭喜！你的得分是</h2>
+                    <div class="result-score">${percentage}分</div>
+                    <div class="form-success">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>信息提交成功！</h3>
+                        <p>您的个人信息已成功发送至944980377@qq.com，我们会在收到后尽快与您联系。</p>
+                        <p>感谢您的参与，祝您早日找到有缘人！</p>
+                    </div>
+                    
+                    <!-- 结果页面分享二维码 -->
+                    <div class="qrcode-container">
+                        <h3>分享此测试</h3>
+                        <p>扫描下方二维码，将测试分享给朋友</p>
+                        <div class="qrcode" id="result-share-qrcode"></div>
+                        <div class="qrcode-info">
+                            <p><i class="fas fa-info-circle"></i> 使用微信扫描二维码分享此测试</p>
+                        </div>
+                    </div>
+                `;
+                
+                // 生成结果页面分享二维码
+                setTimeout(() => {
+                    generateQRCode('result-share-qrcode', window.location.href);
+                }, 100);
+            } else {
+                // 未通过测试
+                resultHTML = `
+                    <h2 class="result-title">测试结果</h2>
+                    <div class="result-score">${percentage}分</div>
+                    <p class="result-message">
+                        你的得分是${percentage}分（满分100分），未达到${state.threshold}分的阈值。
+                    </p>
+                    <div class="fail-message">
+                        <h3>祝你早日觅得良缘</h3>
+                        <p>
+                            缘分是奇妙的东西，它可能在不经意间到来。
+                            请继续相信爱情，保持开放的心态，你的良缘或许就在下一个转角。
+                            每一次相遇都是学习，每一次心动都是成长。
+                        </p>
+                    </div>
+                `;
+            }
+            
+            resultContent.innerHTML = resultHTML;
+            showPage('result');
+            
+            // 如果显示表单，绑定表单提交事件
+            if (percentage >= state.threshold && !state.formSubmitted) {
+                const form = document.getElementById('user-info-form');
+                if (form) {
+                    form.addEventListener('submit', handleFormSubmit);
+                }
+            }
+        }
+        
+        // 处理表单提交 - 使用EmailJS发送邮件
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // 收集表单数据
+            const formData = {
+                birthYear: document.getElementById('birth-year').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                job: document.getElementById('job').value,
+                hobbies: document.getElementById('hobbies').value,
+                wechat: document.getElementById('wechat').value,
+                introduction: document.getElementById('introduction').value,
+                testScore: state.totalScore,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            // 验证微信号是否填写
+            if (!formData.wechat.trim()) {
+                alert('请填写微信号，以便我们与您联系！');
+                return;
+            }
+            
+            // 构建邮件内容
+            const emailContent = `
+                缘分测试报名 - 得分${state.totalScore}分
+                
+                得分：${state.totalScore}分
+                
+                个人信息：
+                出生年份：${formData.birthYear || '未填写'}
+                身高：${formData.height || '未填写'} cm
+                体重：${formData.weight || '未填写'} kg
+                工作：${formData.job || '未填写'}
+                爱好：${formData.hobbies || '未填写'}
+                微信号：${formData.wechat}
+                其他介绍：${formData.introduction || '未填写'}
+                
+                提交时间：${formData.timestamp}
+                
+                此信息通过缘分测试系统自动发送。
+            `;
+            
+            // 显示提交中状态
+            const submitBtn = document.querySelector('.btn-submit-form');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 提交中...';
+            submitBtn.disabled = true;
+            
+            // 使用EmailJS发送邮件
+            sendEmailWithEmailJS(formData, emailContent)
+                .then(() => {
+                    // 标记表单已提交
+                    state.formSubmitted = true;
+                    
+                    // 显示提交成功消息
+                    setTimeout(() => {
+                        showTestResult();
+                    }, 500);
+                })
+                .catch(error => {
+                    console.error('邮件发送失败:', error);
+                    
+                    // 恢复按钮状态
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    
+                    // 尝试备用方法
+                    alert('邮件发送失败，正在尝试备用方法...');
+                    sendEmailWithBackupMethod(formData, emailContent);
+                });
+        }
+        
+        // 使用EmailJS发送邮件
+        async function sendEmailWithEmailJS(formData, emailContent) {
+            // 这里需要您注册EmailJS并配置以下信息
+            // 1. 注册EmailJS：https://www.emailjs.com/
+            // 2. 获取Service ID、Template ID和User ID
+            // 3. 替换下面的配置
+            
+            const emailjsConfig = {
+                serviceId: 'YOUR_SERVICE_ID', // 替换为您的EmailJS Service ID
+                templateId: 'YOUR_TEMPLATE_ID', // 替换为您的EmailJS Template ID
+                userId: 'YOUR_USER_ID', // 替换为您的EmailJS User ID
+                toEmail: '944980377@qq.com'
+            };
+            
+            // 如果未配置EmailJS，则使用备用方法
+            if (emailjsConfig.serviceId === 'YOUR_SERVICE_ID') {
+                throw new Error('EmailJS未配置');
+            }
+            
+            // 动态加载EmailJS库
+            if (typeof emailjs === 'undefined') {
+                await loadScript('https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js');
+                emailjs.init(emailjsConfig.userId);
+            }
+            
+            // 发送邮件
+            const templateParams = {
+                to_email: emailjsConfig.toEmail,
+                subject: `缘分测试报名 - 得分${formData.testScore}分`,
+                message: emailContent,
+                from_name: '缘分测试系统',
+                reply_to: 'noreply@yuanceshi.com',
+                birth_year: formData.birthYear || '未填写',
+                height: formData.height || '未填写',
+                weight: formData.weight || '未填写',
+                job: formData.job || '未填写',
+                hobbies: formData.hobbies || '未填写',
+                wechat: formData.wechat,
+                introduction: formData.introduction || '未填写',
+                test_score: formData.testScore,
+                timestamp: formData.timestamp
+            };
+            
+            return emailjs.send(
+                emailjsConfig.serviceId,
+                emailjsConfig.templateId,
+                templateParams
+            );
+        }
+        
+        // 备用邮件发送方法（使用Formspree）
+        function sendEmailWithBackupMethod(formData, emailContent) {
+            // Formspree是一个免费的表单处理服务
+            // 1. 注册Formspree：https://formspree.io/
+            // 2. 创建一个表单，获取表单ID
+            // 3. 替换下面的formspreeUrl
+            
+            const formspreeUrl = 'https://formspree.io/f/YOUR_FORM_ID'; // 替换为您的Formspree表单URL
+            
+            if (formspreeUrl === 'https://formspree.io/f/YOUR_FORM_ID') {
+                alert('请配置邮件发送服务！\n\n您可以：\n1. 注册EmailJS并替换代码中的配置\n2. 或注册Formspree并替换formspreeUrl\n\n现在将使用默认的mailto方法。');
+                sendEmailWithMailto(formData, emailContent);
+                return;
+            }
+            
+            const formDataToSend = new FormData();
+            formDataToSend.append('_subject', `缘分测试报名 - 得分${formData.testScore}分`);
+            formDataToSend.append('message', emailContent);
+            formDataToSend.append('_replyto', 'noreply@yuanceshi.com');
+            formDataToSend.append('_cc', '944980377@qq.com');
+            
+            fetch(formspreeUrl, {
+                method: 'POST',
+                body: formDataToSend,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    state.formSubmitted = true;
+                    setTimeout(() => {
+                        showTestResult();
+                    }, 500);
+                } else {
+                    throw new Error('Formspree发送失败');
+                }
+            })
+            .catch(error => {
+                console.error('Formspree发送失败:', error);
+                sendEmailWithMailto(formData, emailContent);
+            });
+        }
+        
+        // 使用mailto作为最后的备用方法
+        function sendEmailWithMailto(formData, emailContent) {
+            const subject = `缘分测试报名 - 得分${formData.testScore}分`;
+            const body = encodeURIComponent(emailContent);
+            const mailtoLink = `mailto:944980377@qq.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+            
+            // 创建隐藏的iframe来发送邮件
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = mailtoLink;
+            document.body.appendChild(iframe);
+            
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+                state.formSubmitted = true;
+                setTimeout(() => {
+                    showTestResult();
+                }, 500);
+            }, 1000);
+        }
+        
+        // 动态加载脚本
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // 显示人才库结果
+        function showTalentResult() {
+            const resultHTML = `
+                <h2 class="result-title">感谢你的关注</h2>
+                <div class="fail-message">
+                    <h3>祝你早日觅得良缘</h3>
+                    <p>
+                        你已经进入我们的人才库，我们会将你的信息妥善保存。
+                        缘分是奇妙的东西，它可能在不经意间到来。
+                        请继续相信爱情，保持开放的心态，你的良缘或许就在下一个转角。
+                        祝愿你早日找到与你心灵契合的那个人！
+                    </p>
+                </div>
+            `;
+            
+            resultContent.innerHTML = resultHTML;
+            showPage('result');
+        }
+        
+        // 事件监听
+        continueBtn.addEventListener('click', () => {
+            showPage('test');
+        });
+        
+        talentBtn.addEventListener('click', () => {
+            showTalentResult();
+        });
+        
+        prevBtn.addEventListener('click', () => {
+            if (state.currentQuestion > 0) {
+                showQuestion(state.currentQuestion - 1);
+            }
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            if (state.currentQuestion < state.questions.length - 1 && state.scores[state.currentQuestion] > 0) {
+                showQuestion(state.currentQuestion + 1);
+            }
+        });
+        
+        submitBtn.addEventListener('click', () => {
+            // 检查所有问题是否已回答
+            const allAnswered = state.scores.every(score => score > 0);
+            
+            if (allAnswered) {
+                showTestResult();
+            } else {
+                alert('请先回答所有问题再提交！');
+            }
+        });
+        
+        // 初始化应用
+        createBackgroundHearts();
+        init();
+    </script>
+</body>
+</html>
