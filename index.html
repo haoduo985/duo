@@ -1261,7 +1261,7 @@
                             
                             <div class="form-group">
                                 <label class="form-label" for="personality">性格</label>
-                                <input type="number" id="personality" class="form-input" placeholder="例如：超级外向、ENTJ">
+                                <input type="text" id="personality" class="form-input" placeholder="例如：超级外向、ENTJ">
                             </div>
                             
                             <div class="form-group">
@@ -1329,7 +1329,7 @@
             }
         }
         
-        // 处理表单提交
+        // 处理表单提交（完全修正版）
         function handleFormSubmit(e) {
             e.preventDefault();
             
@@ -1357,74 +1357,39 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 提交中...';
 
-           // 向后端发送请求
-           fetch('send_email.php', {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json',
-               },
-               body: JSON.stringify(formData)
-           })
-           .then(response => response.json())
-           .then(data => {
-               if (data.success) {
-                   // 标记表单已提交
-                   state.formSubmitted = true;
-                   // 显示提交成功消息
-                   showTestResult();
-               } else {
-                   alert('提交失败：' + (data.message || '服务器错误，请稍后再试'));
-                   submitBtn.disabled = false;
-                   submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
-               }
-           })
-           .catch(error => {
-               console.error('Error:', error);
-               alert('提交失败：网络错误，请检查网络连接');
-               submitBtn.disabled = false;
-               submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
-           });
-        }
-            // 构建邮件内容
-            const emailSubject = `缘分测试报名 - 得分${state.totalScore}分`;
-            const emailBody = `
-得分：${state.totalScore}分
-
-个人信息：
-出生年份：${formData.birthYear || '未填写'}
-身高：${formData.height || '未填写'} cm
-体重：${formData.weight || '未填写'} kg
-工作：${formData.job || '未填写'}
-性格：$${formData.personality || '未填写'}
-爱好：${formData.hobbies || '未填写'}
-微信号：${formData.wechat}
-其他介绍：${formData.introduction || '未填写'}
-
-提交时间：${new Date().toLocaleString()}
-            `.trim();
-            
-            // 使用mailto发送邮件到指定邮箱
-            const mailtoLink = `mailto:944980377@qq.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-            
-            // 标记表单已提交
-            state.formSubmitted = true;
-            
-            // 尝试打开邮件客户端（静默发送，用户可能看不到发送过程）
-            // 创建隐藏的iframe来发送邮件，避免页面跳转
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = mailtoLink;
-            document.body.appendChild(iframe);
-            
-            // 延迟移除iframe
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-                
-                // 显示提交成功消息
-                setTimeout(() => {
+            // 向后端发送请求
+            fetch('send_email.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                // 处理非JSON响应
+                if (!response.ok) {
+                    throw new Error('服务器响应错误');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 标记表单已提交
+                    state.formSubmitted = true;
+                    // 显示提交成功消息
                     showTestResult();
-                }, 100);
-            }, 1000);
+                } else {
+                    alert('提交失败：' + (data.message || '服务器错误，请稍后再试'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('提交失败：网络错误或服务器未配置，请检查后端文件是否正确部署');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
+            });
         }
         
         // 显示人才库结果
@@ -1484,5 +1449,3 @@
     </script>
 </body>
 </html>
-
-
