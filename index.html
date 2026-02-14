@@ -435,114 +435,24 @@
             color: #666;
         }
         
-        /* 个人信息表单样式 */
-        .form-container {
-            background-color: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 0;
-            text-align: left;
-            border-left: 5px solid #4caf50;
-        }
-        
-        .form-title {
-            color: #333;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-            text-align: center;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        .form-input:focus {
-            border-color: #8e24aa;
-            outline: none;
-        }
-        
-        .form-textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 100px;
-            font-family: inherit;
-        }
-        
-        .form-textarea:focus {
-            border-color: #8e24aa;
-            outline: none;
-        }
-        
-        .form-note {
-            font-size: 0.95rem;
-            color: #666;
-            margin-top: 5px;
-            font-style: italic;
-        }
-        
-        .form-disclaimer {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            color: #856404;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        .form-disclaimer i {
-            margin-right: 8px;
-            color: #ffc107;
-        }
-        
-        .btn-submit-form {
-            background: linear-gradient(to right, #4caf50, #2e7d32);
+        /* 问卷链接按钮样式 */
+        .questionnaire-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(to right, #2196f3, #1976d2);
             color: white;
-            margin: 20px auto 0;
-            padding: 15px 40px;
-            display: block;
-        }
-        
-        .btn-submit-form:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-        }
-        
-        .form-success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 8px;
-            padding: 20px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
             margin: 20px 0;
-            color: #155724;
-            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
         }
         
-        .form-success i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: #28a745;
+        .questionnaire-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
         }
         
         .footer {
@@ -600,8 +510,11 @@
                 font-size: 3.5rem;
             }
             
-            .form-container {
-                padding: 20px;
+            .questionnaire-btn {
+                padding: 14px 30px;
+                font-size: 1.1rem;
+                width: 100%;
+                max-width: 300px;
             }
         }
         
@@ -771,9 +684,8 @@
             }
         }
         
-        // 【关键修改1】修复getQuestions函数，移除错误嵌套，直接返回正确的问题数组
+        // 获取测试问题
         function getQuestions() {
-            // 直接返回20道问题的数组，不再嵌套多余的变量
             return [
                 // 第1个问题
                 {
@@ -1005,8 +917,8 @@
             scores: [],
             questions: [],
             totalScore: 0,
-            threshold: 65, // 通过阈值
-            formSubmitted: false // 标记表单是否已提交
+            threshold: 70, // 【关键修改1】阈值从65改为70
+            formSubmitted: false // 保留但不再使用
         };
         
         // DOM元素
@@ -1121,7 +1033,7 @@
             updateProgress();
         }
         
-        // 【关键修改2】优化选项点击逻辑，确保事件绑定和状态更新正常
+        // 选项点击逻辑
         function handleOptionClick(e) {
             const option = e.currentTarget;
             const questionCard = option.closest('.question-card');
@@ -1212,94 +1124,29 @@
             return state.scores.reduce((total, score) => total + score, 0);
         }
         
-        // 显示测试结果
+        // 【关键修改2】重构showTestResult函数，移除表单、邮件逻辑，新增问卷链接
         function showTestResult() {
             state.totalScore = calculateTotalScore();
             const percentage = state.totalScore; // 满分100分
             
             let resultHTML = '';
             
-            if (percentage >= state.threshold && !state.formSubmitted) {
-                // 通过测试，显示个人信息表单
+            if (percentage > state.threshold) {
+                // 分数>70分：显示腾讯问卷链接
                 resultHTML = `
                     <h2 class="result-title">🎉 恭喜！你的得分是</h2>
                     <div class="result-score">${percentage}分</div>
                     <p class="result-message">
                         你的得分达到了${percentage}分（满分100分），超过了${state.threshold}分的阈值！
-                        如果你愿意和我取得联系，可以填写以下个人信息，我会尽快与你联系。
+                        如果你愿意进一步完善个人信息，可自主选择填写下方问卷：
                     </p>
-                    
-                    <div class="form-container">
-                        <h3 class="form-title">个人信息登记</h3>
-                        
-                        <div class="form-disclaimer">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>温馨提示：</strong> 并不是所有信息均需填写，本人纯属为了提高脱单效率，如有冒犯请多包涵。
-                        </div>
-                        
-                        <form id="user-info-form">
-                            <div class="form-group">
-                                <label class="form-label" for="birth-year">出生年份</label>
-                                <input type="number" id="birth-year" class="form-input" placeholder="例如：1990" min="1950" max="2010">
-                                <div class="form-note">请填写4位数字的出生年份</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="height">身高 (cm)</label>
-                                <input type="number" id="height" class="form-input" placeholder="例如：175" min="140" max="220">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="weight">体重 (kg)</label>
-                                <input type="number" id="weight" class="form-input" placeholder="例如：65" min="35" max="150">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="job">工作/职业</label>
-                                <input type="text" id="job" class="form-input" placeholder="例如：设计师、教师、工程师等">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="personality">性格</label>
-                                <input type="text" id="personality" class="form-input" placeholder="例如：超级外向、ENTJ">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="hobbies">爱好/兴趣</label>
-                                <textarea id="hobbies" class="form-textarea" placeholder="例如：阅读、旅行、摄影、音乐、运动等"></textarea>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="wechat">微信号</label>
-                                <input type="text" id="wechat" class="form-input" placeholder="请输入微信号">
-                                <div class="form-note">请确保微信号正确，我将通过微信与你联系</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="introduction">其他介绍/想说的话</label>
-                                <textarea id="introduction" class="form-textarea" placeholder="可以简单介绍一下自己，或者对未来的期待等"></textarea>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-submit-form">
-                                <i class="fas fa-paper-plane"></i> 提交信息
-                            </button>
-                        </form>
-                    </div>
-                `;
-            } else if (percentage >= state.threshold && state.formSubmitted) {
-                // 表单已提交
-                resultHTML = `
-                    <h2 class="result-title">🎉 恭喜！你的得分是</h2>
-                    <div class="result-score">${percentage}分</div>
-                    <div class="form-success">
-                        <i class="fas fa-check-circle"></i>
-                        <h3>信息提交成功！</h3>
-                        <p>个人信息已成功提交，我会在收到后尽快与你联系。</p>
-                        <p>感谢你的参与，祝你顺风顺水顺财神，朝朝暮暮有人疼！</p>
-                    </div>
+                    <a href="https://wj.qq.com/s2/25765193/b0ba/" target="_blank" class="questionnaire-btn">
+                        <i class="fas fa-edit"></i> 点击填写问卷
+                    </a>
+                    <p style="color: #666; margin-top: 20px;">温馨提示：问卷为自愿填写，填写后我会妥善保存你的信息</p>
                 `;
             } else {
-                // 未通过测试
+                // 分数≤70分：保留原祝福语
                 resultHTML = `
                     <h2 class="result-title">测试结果</h2>
                     <div class="result-score">${percentage}分</div>
@@ -1319,78 +1166,9 @@
             
             resultContent.innerHTML = resultHTML;
             showPage('result');
-            
-            // 如果显示表单，绑定表单提交事件
-            if (percentage >= state.threshold && !state.formSubmitted) {
-                const form = document.getElementById('user-info-form');
-                if (form) {
-                    form.addEventListener('submit', handleFormSubmit);
-                }
-            }
         }
         
-        // 处理表单提交（完全修正版）
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            // 收集表单数据
-            const formData = {
-                birthYear: document.getElementById('birth-year').value,
-                height: document.getElementById('height').value,
-                weight: document.getElementById('weight').value,
-                job: document.getElementById('job').value,
-                personality: document.getElementById('personality').value,
-                hobbies: document.getElementById('hobbies').value,
-                wechat: document.getElementById('wechat').value,
-                introduction: document.getElementById('introduction').value,
-                testScore: state.totalScore
-            };
-            
-            // 验证微信号是否填写
-            if (!formData.wechat.trim()) {
-                alert('请填写微信号，以便我与您联系！');
-                return;
-            }
-
-            // 显示加载状态
-            const submitBtn = document.querySelector('.btn-submit-form');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 提交中...';
-
-            // 向后端发送请求
-            fetch('send_email.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => {
-                // 处理非JSON响应
-                if (!response.ok) {
-                    throw new Error('服务器响应错误');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // 标记表单已提交
-                    state.formSubmitted = true;
-                    // 显示提交成功消息
-                    showTestResult();
-                } else {
-                    alert('提交失败：' + (data.message || '服务器错误，请稍后再试'));
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('提交失败：网络错误或服务器未配置，请检查后端文件是否正确部署');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
-            });
-        }
+        // 【关键修改3】移除表单提交函数（handleFormSubmit），不再需要
         
         // 显示人才库结果
         function showTalentResult() {
