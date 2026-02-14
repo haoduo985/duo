@@ -1339,6 +1339,7 @@
                 height: document.getElementById('height').value,
                 weight: document.getElementById('weight').value,
                 job: document.getElementById('job').value,
+                personality: document.getElementById('personality').value,
                 hobbies: document.getElementById('hobbies').value,
                 wechat: document.getElementById('wechat').value,
                 introduction: document.getElementById('introduction').value,
@@ -1350,7 +1351,40 @@
                 alert('请填写微信号，以便我与您联系！');
                 return;
             }
-            
+
+            // 显示加载状态
+            const submitBtn = document.querySelector('.btn-submit-form');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 提交中...';
+
+           // 向后端发送请求
+           fetch('send_email.php', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify(formData)
+           })
+           .then(response => response.json())
+           .then(data => {
+               if (data.success) {
+                   // 标记表单已提交
+                   state.formSubmitted = true;
+                   // 显示提交成功消息
+                   showTestResult();
+               } else {
+                   alert('提交失败：' + (data.message || '服务器错误，请稍后再试'));
+                   submitBtn.disabled = false;
+                   submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
+               }
+           })
+           .catch(error => {
+               console.error('Error:', error);
+               alert('提交失败：网络错误，请检查网络连接');
+               submitBtn.disabled = false;
+               submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交信息';
+           });
+        }
             // 构建邮件内容
             const emailSubject = `缘分测试报名 - 得分${state.totalScore}分`;
             const emailBody = `
@@ -1361,6 +1395,7 @@
 身高：${formData.height || '未填写'} cm
 体重：${formData.weight || '未填写'} kg
 工作：${formData.job || '未填写'}
+性格：$${formData.personality || '未填写'}
 爱好：${formData.hobbies || '未填写'}
 微信号：${formData.wechat}
 其他介绍：${formData.introduction || '未填写'}
@@ -1449,4 +1484,5 @@
     </script>
 </body>
 </html>
+
 
